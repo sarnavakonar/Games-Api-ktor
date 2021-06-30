@@ -5,15 +5,15 @@ import io.ktor.gson.*
 import io.ktor.features.*
 import kotlin.test.*
 import io.ktor.server.testing.*
-import main.kotlin.module
+import main.module
 
 class ApplicationTest {
     @Test
     fun testRoot() {
         withTestApplication({ module(testing = true) }) {
-            handleRequest(HttpMethod.Get, "/").apply {
+            handleRequest(HttpMethod.Get, "/getAllGames").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("HELLO WORLD!", response.content)
+                assertEquals("FIFA 21", response.content)
             }
         }
     }
