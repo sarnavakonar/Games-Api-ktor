@@ -23,8 +23,15 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Authentication) {
-        basic {
-            // Configure basic authentication
+        basic("auth-basic") {
+            realm = "Access to the '/' path"
+            validate { credentials ->
+                if (credentials.name == "sarnava" && credentials.password == "konar") {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
+            }
         }
     }
 
@@ -35,28 +42,31 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        get("/getAllGames") {
-            call.respond(Repository.getAllGames())
-        }
+        authenticate("auth-basic") {
 
-        get("/session/increment") {
-            val session = call.sessions.get<MySession>() ?: MySession()
-            call.sessions.set(session.copy(count = session.count + 1))
-            call.respondText("Counter is ${session.count}. Refresh to increment.")
-        }
+            get("/getAllGames") {
+                call.respond(Repository.getAllGames())
+            }
 
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world-hi"))
-        }
-
-        get("/download") {
-            val file = File("resources/files/img.jpg")
-            call.response.header(
-                HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "img.jpg")
-                    .toString()
-            )
-            call.respondFile(file)
+//            get("/session/increment") {
+//                val session = call.sessions.get<MySession>() ?: MySession()
+//                call.sessions.set(session.copy(count = session.count + 1))
+//                call.respondText("Counter is ${session.count}. Refresh to increment.")
+//            }
+//
+//            get("/json/gson") {
+//                call.respond(mapOf("hello" to "world-hi"))
+//            }
+//
+//            get("/download") {
+//                val file = File("resources/files/img.jpg")
+//                call.response.header(
+//                    HttpHeaders.ContentDisposition,
+//                    ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "img.jpg")
+//                        .toString()
+//                )
+//                call.respondFile(file)
+//            }
         }
     }
 }

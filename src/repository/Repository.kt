@@ -2,6 +2,10 @@ package repository
 
 import database.DatabaseManager
 import main.model.GamesResponse
+import main.util.Constants.ACTION
+import main.util.Constants.OPEN_WORLD
+import main.util.Constants.RACING
+import main.util.Constants.SPORTS
 import model.Game
 
 object Repository {
@@ -11,10 +15,10 @@ object Repository {
     fun getAllGames(): GamesResponse {
         return GamesResponse(
             trendingGames = getTrendingGames(),
-            sportsGames = getGames("Sports"),
-            openWorldGames = getGames("Open World"),
-            actionGames = getGames("Action"),
-            racingGames = getGames("Racing")
+            sportsGames = getGames(SPORTS),
+            openWorldGames = getGames(OPEN_WORLD),
+            actionGames = getGames(ACTION),
+            racingGames = getGames(RACING)
         )
     }
 
