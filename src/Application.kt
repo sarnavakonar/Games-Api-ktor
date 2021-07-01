@@ -44,6 +44,10 @@ fun Application.module(testing: Boolean = false) {
     routing {
         authenticate("auth-basic") {
 
+            get("/") {
+                call.respond("Yo MAMA !!")
+            }
+
             get("/getAllGames") {
                 call.respond(Repository.getAllGames())
             }
