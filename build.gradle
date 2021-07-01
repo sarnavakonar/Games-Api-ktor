@@ -46,3 +46,7 @@ dependencies {
     implementation "org.ktorm:ktorm-support-mysql:3.2.0"
     compile("mysql:mysql-connector-java:5.1.48")
 }
+
+task stage {
+    dependsOn installDist
+}
