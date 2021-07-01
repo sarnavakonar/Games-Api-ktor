@@ -1,1 +1,1 @@
-web: build/install/Games Server/bin/Games Server
+web: build/install/games/bin/games
