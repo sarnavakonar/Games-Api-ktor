@@ -5,32 +5,78 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import main.model.Developer
 import main.model.Game
+import main.model.response.FavouriteGamesResponse
 import main.model.response.Games
 import main.model.response.GamesResponse
+import main.model.response.GenericResponse
 import main.util.Constants.ACTION
 import main.util.Constants.OPEN_WORLD
 import main.util.Constants.RACING
 import main.util.Constants.SPORTS
+import main.util.Constants.USERNAME
 import main.util.Constants.gamesCategoryList
 
 object Repository {
 
     private val databaseManager = DatabaseManager()
 
-    fun addGameAsFavourite(username: String, gameId: Int): Boolean {
-        val userId = databaseManager.getUserIdFromUsername(username)
-        userId?.let {
-            return databaseManager.addGameAsFavourite(userId, gameId) == 1
-        }
-        return false
+    fun checkIfUserExists(username: String, password: String): Boolean {
+        return databaseManager.checkIfUserExists(username, password) > 0
     }
 
-    fun deleteGameAsFavourite(username: String, gameId: Int): Boolean {
-        val userId = databaseManager.getUserIdFromUsername(username)
+    fun getAllFavouritesForUser(): FavouriteGamesResponse {
+        val userId = databaseManager.getUserIdFromUsername(USERNAME)
+        var games: List<Game> = mutableListOf()
+        var status = "FAILURE"
+        var message = "User not found"
         userId?.let {
-            return databaseManager.deleteGameAsFavourite(userId, gameId) == 1
+            games = databaseManager.getAllFavouriteGames(userId)
+            if (!games.isNullOrEmpty()){
+                status = "SUCCESS"
+                message = "Favourite games found"
+            }
+            else{
+                message = "No favourite games found"
+            }
         }
-        return false
+        return FavouriteGamesResponse(status = status, message = message, games = games)
+    }
+
+    fun addGameAsFavourite(gameId: Int): GenericResponse {
+        val userId = databaseManager.getUserIdFromUsername(USERNAME)
+        var status = "FAILURE"
+        var message = "User not found"
+        userId?.let {
+            if(databaseManager.checkIfAlreadyFavourite(userId, gameId) > 0) {
+                message = "Game already exists as favourite"
+            }
+            else {
+                if(databaseManager.addGameAsFavourite(userId, gameId) == 1) {
+                    status = "SUCCESS"
+                    message = "Favourite game added"
+                }
+                else{
+                    message = "Error in adding game as favourite"
+                }
+            }
+        }
+        return GenericResponse(status = status, message = message)
+    }
+
+    fun deleteGameAsFavourite(gameId: Int): GenericResponse {
+        val userId = databaseManager.getUserIdFromUsername(USERNAME)
+        var status = "FAILURE"
+        var message = "User not found"
+        userId?.let {
+            if(databaseManager.deleteGameAsFavourite(userId, gameId) == 1) {
+                status = "SUCCESS"
+                message = "Favourite game removed"
+            }
+            else{
+                message = "Error in removing game as favourite"
+            }
+        }
+        return GenericResponse(status = status, message = message)
     }
 
     suspend fun getAllGames(): GamesResponse {

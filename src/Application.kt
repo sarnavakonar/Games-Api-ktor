@@ -10,6 +10,7 @@ import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
 import main.model.request.FavouriteRequestBody
+import main.util.Constants.USERNAME
 import repository.Repository
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -27,9 +28,11 @@ fun Application.module(testing: Boolean = false) {
         basic("auth-basic") {
             realm = "Access to the '/' path"
             validate { credentials ->
-                if (credentials.name == "sarnava" && credentials.password == "konar") {
+                if(Repository.checkIfUserExists(credentials.name, credentials.password)){
+                    USERNAME = credentials.name
                     UserIdPrincipal(credentials.name)
-                } else {
+                }
+                else {
                     null
                 }
             }
@@ -51,21 +54,22 @@ fun Application.module(testing: Boolean = false) {
 
             post("/alterFav") {
                 val requestBody = call.receive<FavouriteRequestBody>()
-                val username = requestBody.username
                 val gameId = requestBody.gameId
                 val addToFav = requestBody.addToFav
-                if(username.isNullOrEmpty() || gameId == -1){
+                if(gameId == -1){
                     call.respond(HttpStatusCode.BadRequest, "Invalid request")
                     return@post
                 }
                 if (addToFav){
-                    val result = Repository.addGameAsFavourite(username, gameId)
-                    call.respond("Add Result is: $result")
+                    call.respond(Repository.addGameAsFavourite(gameId))
                 }
                 else{
-                    val result = Repository.deleteGameAsFavourite(username, gameId)
-                    call.respond("Delete Result is: $result")
+                    call.respond(Repository.deleteGameAsFavourite(gameId))
                 }
+            }
+
+            get("/getAllFavourites") {
+                call.respond(Repository.getAllFavouritesForUser())
             }
 
 //            get("/session/increment") {

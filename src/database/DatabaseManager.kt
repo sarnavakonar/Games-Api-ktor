@@ -6,6 +6,7 @@ import main.database.entity.DevelopersEntity
 import main.database.entity.DevelopersTable
 import main.database.entity.FavouritesTable
 import main.database.entity.UsersTable
+import main.model.Game
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.ktorm.entity.sequenceOf
@@ -41,6 +42,42 @@ class DatabaseManager {
             .toList()
     }
 
+    fun checkIfUserExists(username: String, password: String): Int {
+        return ktormDatabase
+            .from(UsersTable)
+            .select(UsersTable.id)
+            .where { (UsersTable.username eq username) and (UsersTable.password eq password) }
+            .totalRecords
+    }
+
+    fun getAllFavouriteGames(userId: Int): List<Game> {
+        val gamesList = mutableListOf<Game>()
+        ktormDatabase
+            .from(FavouritesTable)
+            .select(FavouritesTable.gameid)
+            .where { FavouritesTable.userid eq userId }
+            .forEach {
+                ktormDatabase
+                    .from(GamesTable)
+                    .select(GamesTable.id, GamesTable.name, GamesTable.description, GamesTable.image, GamesTable.category, GamesTable.rating, GamesTable.trending)
+                    .where { GamesTable.id eq it[FavouritesTable.gameid]!! }
+                    .forEach {
+                        gamesList.add(
+                            Game(
+                                id = it[GamesTable.id]!!,
+                                name = it[GamesTable.name]!!,
+                                description = it[GamesTable.description]!!,
+                                image = it[GamesTable.image]!!,
+                                categoty = it[GamesTable.category]!!,
+                                rating = it[GamesTable.rating]!!,
+                                trending = it[GamesTable.trending]!!
+                            )
+                        )
+                    }
+            }
+        return gamesList
+    }
+
     fun getUserIdFromUsername(username: String): Int? {
         ktormDatabase
             .from(UsersTable)
@@ -49,7 +86,17 @@ class DatabaseManager {
             .forEach {
                 return it[UsersTable.id]
             }
-        return -1
+        return null
+    }
+
+    fun checkIfAlreadyFavourite(userId: Int, gameId: Int): Int {
+        return ktormDatabase
+            .from(FavouritesTable)
+            .select(FavouritesTable.id)
+            .where {
+                (FavouritesTable.userid eq userId) and (FavouritesTable.gameid eq gameId)
+            }
+            .totalRecords
     }
 
     fun addGameAsFavourite(userId: Int, gameId: Int): Int {
@@ -65,14 +112,14 @@ class DatabaseManager {
         }
     }
 
-    fun get(): Query {
-        return ktormDatabase
-            .from(GamesTable)
-            .innerJoin(DevelopersTable, on = GamesTable.developer eq DevelopersTable.id)
-            .select(GamesTable.id, GamesTable.name, GamesTable.category, GamesTable.image, GamesTable.trending, DevelopersTable.name, DevelopersTable.logo)
+//    fun get(): Query {
+//        return ktormDatabase
+//            .from(GamesTable)
+//            .innerJoin(DevelopersTable, on = GamesTable.developer eq DevelopersTable.id)
+//            .select(GamesTable.id, GamesTable.name, GamesTable.category, GamesTable.image, GamesTable.trending, DevelopersTable.name, DevelopersTable.logo)
 //            .forEach {
 //                it[GamesTable.name]
 //            }
-    }
+//    }
 
 }

@@ -2,6 +2,8 @@ package main.util
 
 object Constants {
 
+    var USERNAME = ""
+
     const val GAMES_TABLE = "games"
     const val DEVELOPERS_TABLE = "developers"
     const val USERS_TABLE = "users"
