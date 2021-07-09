@@ -1,6 +1,7 @@
-package main.model
+package main.model.response
 
-import model.Game
+import main.model.Developer
+import main.model.Game
 
 data class GamesResponse(
     val games: Games,

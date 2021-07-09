@@ -4,10 +4,13 @@ import database.entity.GamesEntity
 import database.entity.GamesTable
 import main.database.entity.DevelopersEntity
 import main.database.entity.DevelopersTable
+import main.database.entity.FavouritesTable
+import main.database.entity.UsersTable
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.toList
+import org.ktorm.schema.Column
 
 class DatabaseManager {
 
@@ -36,6 +39,30 @@ class DatabaseManager {
         return ktormDatabase
             .sequenceOf(DevelopersTable)
             .toList()
+    }
+
+    fun getUserIdFromUsername(username: String): Int? {
+        ktormDatabase
+            .from(UsersTable)
+            .select(UsersTable.id)
+            .where { UsersTable.username eq username }
+            .forEach {
+                return it[UsersTable.id]
+            }
+        return -1
+    }
+
+    fun addGameAsFavourite(userId: Int, gameId: Int): Int {
+        return ktormDatabase.insert(FavouritesTable) {
+            set(it.userid, userId)
+            set(it.gameid, gameId)
+        }
+    }
+
+    fun deleteGameAsFavourite(userId: Int, gameId: Int): Int {
+        return ktormDatabase.delete(FavouritesTable){
+            (it.userid eq userId) and (it.gameid eq gameId)
+        }
     }
 
     fun get(): Query {

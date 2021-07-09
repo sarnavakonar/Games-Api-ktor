@@ -1,4 +1,4 @@
-package model
+package main.model
 
 data class Game(
     val id: Int,

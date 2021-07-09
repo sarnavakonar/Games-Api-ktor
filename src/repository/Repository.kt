@@ -4,18 +4,34 @@ import database.DatabaseManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import main.model.Developer
-import main.model.Games
-import main.model.GamesResponse
+import main.model.Game
+import main.model.response.Games
+import main.model.response.GamesResponse
 import main.util.Constants.ACTION
 import main.util.Constants.OPEN_WORLD
 import main.util.Constants.RACING
 import main.util.Constants.SPORTS
 import main.util.Constants.gamesCategoryList
-import model.Game
 
 object Repository {
 
     private val databaseManager = DatabaseManager()
+
+    fun addGameAsFavourite(username: String, gameId: Int): Boolean {
+        val userId = databaseManager.getUserIdFromUsername(username)
+        userId?.let {
+            return databaseManager.addGameAsFavourite(userId, gameId) == 1
+        }
+        return false
+    }
+
+    fun deleteGameAsFavourite(username: String, gameId: Int): Boolean {
+        val userId = databaseManager.getUserIdFromUsername(username)
+        userId?.let {
+            return databaseManager.deleteGameAsFavourite(userId, gameId) == 1
+        }
+        return false
+    }
 
     suspend fun getAllGames(): GamesResponse {
         var sportsGames:List<Game> = ArrayList()

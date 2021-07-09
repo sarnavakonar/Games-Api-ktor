@@ -4,12 +4,13 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.http.*
 import io.ktor.sessions.*
 import io.ktor.gson.*
 import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.request.*
+import main.model.request.FavouriteRequestBody
 import repository.Repository
-import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -44,12 +45,27 @@ fun Application.module(testing: Boolean = false) {
     routing {
         authenticate("auth-basic") {
 
-            get("/") {
-                call.respond("Yo MAMA !!")
-            }
-
             get("/getAllGames") {
                 call.respond(Repository.getAllGames())
+            }
+
+            post("/alterFav") {
+                val requestBody = call.receive<FavouriteRequestBody>()
+                val username = requestBody.username
+                val gameId = requestBody.gameId
+                val addToFav = requestBody.addToFav
+                if(username.isNullOrEmpty() || gameId == -1){
+                    call.respond(HttpStatusCode.BadRequest, "Invalid request")
+                    return@post
+                }
+                if (addToFav){
+                    val result = Repository.addGameAsFavourite(username, gameId)
+                    call.respond("Add Result is: $result")
+                }
+                else{
+                    val result = Repository.deleteGameAsFavourite(username, gameId)
+                    call.respond("Delete Result is: $result")
+                }
             }
 
 //            get("/session/increment") {
