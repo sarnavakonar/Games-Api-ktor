@@ -10,6 +10,7 @@ import main.model.Developer
 import main.model.Game
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
+import org.ktorm.entity.filter
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.toList
 import org.ktorm.schema.Column
@@ -139,6 +140,27 @@ class DatabaseManager {
             set(it.username, username)
             set(it.password, password)
         }
+    }
+
+    fun searchGame(param: String): List<Game> {
+        val gamesList = mutableListOf<Game>()
+        ktormDatabase
+            .from(GamesTable)
+            .select()
+            .where { (GamesTable.name like "%$param%" ) or (GamesTable.description like "%$param%") }
+            .forEach {
+                gamesList.add(
+                    Game(
+                        id = it[GamesTable.id]!!,
+                        name = it[GamesTable.name]!!,
+                        categoty = it[GamesTable.category]!!,
+                        description = it[GamesTable.description]!!,
+                        image = it[GamesTable.image]!!,
+                        trending = it[GamesTable.trending]!!
+                    )
+                )
+            }
+        return gamesList
     }
 
 }

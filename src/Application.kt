@@ -89,6 +89,11 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(Repository.getAllFavouritesForUser())
             }
 
+            get("/searchGame") {
+                val param = call.request.queryParameters["param"]
+                call.respond(Repository.searchGame(param))
+            }
+
 //            get("/session/increment") {
 //                val session = call.sessions.get<MySession>() ?: MySession()
 //                call.sessions.set(session.copy(count = session.count + 1))

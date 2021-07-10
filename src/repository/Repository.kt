@@ -94,6 +94,23 @@ object Repository {
         return GenericResponse(status = status, message = message)
     }
 
+    fun searchGame(param: String?): FavouriteGamesResponse {
+        var games: List<Game> = mutableListOf()
+        var status = "FAILURE"
+        var message = "Search param empty"
+        if(!param.isNullOrEmpty()){
+            games = databaseManager.searchGame(param)
+            if(games.isNotEmpty()){
+                status = "SUCCESS"
+                message = "Game(s) found"
+            }
+            else{
+                message = "Game not found"
+            }
+        }
+        return FavouriteGamesResponse(status = status, message = message, games = games)
+    }
+
     suspend fun getAllGames(): GamesResponse {
         var sportsGames:List<Game> = ArrayList()
         var actionGames:List<Game> = ArrayList()
