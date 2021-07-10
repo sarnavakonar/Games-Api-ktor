@@ -7,8 +7,7 @@ data class Game(
     var categoty: String,
     var image: String,
     var video: String? = null,
-    var developer: Int? = null,
-    var developerLogo: String? = null,
+    var developer: Developer? = null,
     var rating: Double? = null,
     var trending: Int
 )

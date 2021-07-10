@@ -9,6 +9,7 @@ import io.ktor.gson.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
+import main.model.request.CreateUserRequest
 import main.model.request.FavouriteRequestBody
 import main.util.Constants.USERNAME
 import repository.Repository
@@ -46,6 +47,22 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
+
+        post("/createUser") {
+            val requestBody = call.receive<CreateUserRequest>()
+            val username = requestBody.username
+            val password = requestBody.password
+            if(username.isNullOrEmpty() || username.length != 10){
+                call.respond(HttpStatusCode.BadRequest, "Username should be of 10 characters")
+                return@post
+            }
+            if(password.isNullOrEmpty() || password.length < 5){
+                call.respond(HttpStatusCode.BadRequest, "Password should be of minimum 5 characters")
+                return@post
+            }
+            call.respond(Repository.createUserIfNotExist(username, password))
+        }
+
         authenticate("auth-basic") {
 
             get("/getAllGames") {

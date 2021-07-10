@@ -24,6 +24,21 @@ object Repository {
         return databaseManager.checkIfUserExists(username, password) > 0
     }
 
+    fun createUserIfNotExist(username: String, password: String): Any {
+        var status = "FAILURE"
+        var message = "User with username $username already exists"
+        if(databaseManager.checkIfUserNameExists(username) == 0){
+            if(databaseManager.addNewUser(username, password) == 1){
+                status = "SUCCESS"
+                message = "User created"
+            }
+            else{
+                message = "Error in creating new user"
+            }
+        }
+        return GenericResponse(status = status, message = message)
+    }
+
     fun getAllFavouritesForUser(): FavouriteGamesResponse {
         val userId = databaseManager.getUserIdFromUsername(USERNAME)
         var games: List<Game> = mutableListOf()

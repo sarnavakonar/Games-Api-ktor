@@ -6,6 +6,7 @@ import main.database.entity.DevelopersEntity
 import main.database.entity.DevelopersTable
 import main.database.entity.FavouritesTable
 import main.database.entity.UsersTable
+import main.model.Developer
 import main.model.Game
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
@@ -42,6 +43,14 @@ class DatabaseManager {
             .toList()
     }
 
+    fun checkIfUserNameExists(username: String): Int {
+        return ktormDatabase
+            .from(UsersTable)
+            .select(UsersTable.id)
+            .where { UsersTable.username eq username }
+            .totalRecords
+    }
+
     fun checkIfUserExists(username: String, password: String): Int {
         return ktormDatabase
             .from(UsersTable)
@@ -54,26 +63,39 @@ class DatabaseManager {
         val gamesList = mutableListOf<Game>()
         ktormDatabase
             .from(FavouritesTable)
-            .select(FavouritesTable.gameid)
+            .innerJoin(GamesTable, on = GamesTable.id eq FavouritesTable.gameid)
+            .innerJoin(DevelopersTable, on = DevelopersTable.id eq GamesTable.developer)
+            .select(GamesTable.id,
+                GamesTable.name,
+                GamesTable.category,
+                GamesTable.description,
+                GamesTable.image,
+                GamesTable.video,
+                GamesTable.rating,
+                GamesTable.trending,
+                DevelopersTable.id,
+                DevelopersTable.name,
+                DevelopersTable.logo
+            )
             .where { FavouritesTable.userid eq userId }
             .forEach {
-                ktormDatabase
-                    .from(GamesTable)
-                    .select(GamesTable.id, GamesTable.name, GamesTable.description, GamesTable.image, GamesTable.category, GamesTable.rating, GamesTable.trending)
-                    .where { GamesTable.id eq it[FavouritesTable.gameid]!! }
-                    .forEach {
-                        gamesList.add(
-                            Game(
-                                id = it[GamesTable.id]!!,
-                                name = it[GamesTable.name]!!,
-                                description = it[GamesTable.description]!!,
-                                image = it[GamesTable.image]!!,
-                                categoty = it[GamesTable.category]!!,
-                                rating = it[GamesTable.rating]!!,
-                                trending = it[GamesTable.trending]!!
-                            )
-                        )
-                    }
+                gamesList.add(
+                    Game(
+                        id = it[GamesTable.id]!!,
+                        name = it[GamesTable.name]!!,
+                        categoty = it[GamesTable.category]!!,
+                        description = it[GamesTable.description]!!,
+                        image = it[GamesTable.image]!!,
+                        video = it[GamesTable.video]!!,
+                        rating = it[GamesTable.rating]!!,
+                        developer = Developer(
+                            id = it[DevelopersTable.id]!!,
+                            name = it[DevelopersTable.name]!!,
+                            logo = it[DevelopersTable.logo]!!
+                        ),
+                        trending = it[GamesTable.trending]!!
+                    )
+                )
             }
         return gamesList
     }
@@ -112,14 +134,11 @@ class DatabaseManager {
         }
     }
 
-//    fun get(): Query {
-//        return ktormDatabase
-//            .from(GamesTable)
-//            .innerJoin(DevelopersTable, on = GamesTable.developer eq DevelopersTable.id)
-//            .select(GamesTable.id, GamesTable.name, GamesTable.category, GamesTable.image, GamesTable.trending, DevelopersTable.name, DevelopersTable.logo)
-//            .forEach {
-//                it[GamesTable.name]
-//            }
-//    }
+    fun addNewUser(username: String, password: String): Int {
+        return ktormDatabase.insert(UsersTable) {
+            set(it.username, username)
+            set(it.password, password)
+        }
+    }
 
 }
