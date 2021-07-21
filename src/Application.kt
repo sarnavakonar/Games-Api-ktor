@@ -11,6 +11,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import main.model.request.CreateUserRequest
 import main.model.request.FavouriteRequestBody
+import main.model.response.GenericResponse
 import main.util.Constants.USERNAME
 import repository.Repository
 
@@ -53,11 +54,17 @@ fun Application.module(testing: Boolean = false) {
             val username = requestBody.username
             val password = requestBody.password
             if(username.isNullOrEmpty() || username.length != 10){
-                call.respond(HttpStatusCode.BadRequest, "Username should be of 10 characters")
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    GenericResponse(status = "FAILURE", message = "Username should be of 10 characters")
+                )
                 return@post
             }
             if(password.isNullOrEmpty() || password.length < 5){
-                call.respond(HttpStatusCode.BadRequest, "Password should be of minimum 5 characters")
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    GenericResponse(status = "FAILURE", message = "Password should be of minimum 5 characters")
+                )
                 return@post
             }
             call.respond(Repository.createUserIfNotExist(username, password))
@@ -74,7 +81,10 @@ fun Application.module(testing: Boolean = false) {
                 val gameId = requestBody.gameId
                 val addToFav = requestBody.addToFav
                 if(gameId == -1){
-                    call.respond(HttpStatusCode.BadRequest, "Invalid request")
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        GenericResponse(status = "FAILURE", message = "Invalid game Id")
+                    )
                     return@post
                 }
                 if (addToFav){
@@ -92,6 +102,18 @@ fun Application.module(testing: Boolean = false) {
             get("/searchGame") {
                 val param = call.request.queryParameters["param"]
                 call.respond(Repository.searchGame(param))
+            }
+
+            get("/getGamesBy") {
+                val devId = call.request.queryParameters["devId"]
+                if (devId.isNullOrBlank()){
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        GenericResponse(status = "FAILURE", message = "Invalid developer Id")
+                    )
+                    return@get
+                }
+                call.respond(Repository.getGameByDev(devId.toInt()))
             }
 
 //            get("/session/increment") {

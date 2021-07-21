@@ -34,7 +34,6 @@ class DatabaseManager {
     fun getGames(): List<GamesEntity> {
         return ktormDatabase
             .sequenceOf(GamesTable)
-            //.filter { it.category eq gameType }
             .toList()
     }
 
@@ -161,6 +160,13 @@ class DatabaseManager {
                 )
             }
         return gamesList
+    }
+
+    fun getGamesByDev(param: Int): List<GamesEntity> {
+        return ktormDatabase
+            .sequenceOf(GamesTable)
+            .filter { it.developer eq param }
+            .toList()
     }
 
 }

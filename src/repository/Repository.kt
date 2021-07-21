@@ -111,6 +111,33 @@ object Repository {
         return FavouriteGamesResponse(status = status, message = message, games = games)
     }
 
+    suspend fun getGameByDev(devId: Int?): FavouriteGamesResponse {
+        var games: List<Game> = mutableListOf()
+        var status = "FAILURE"
+        var message = "Search param empty"
+        devId?.let {
+            games = withContext(Dispatchers.Default){
+                databaseManager.getGamesByDev(devId).map {
+                    Game(
+                        id = it.id,
+                        name = it.name,
+                        categoty = it.categoty,
+                        image = it.image,
+                        trending = it.trending
+                    )
+                }
+            }
+            if(games.isNotEmpty()){
+                status = "SUCCESS"
+                message = "Game(s) found"
+            }
+            else{
+                message = "Games not found"
+            }
+        }
+        return FavouriteGamesResponse(status = status, message = message, games = games)
+    }
+
     suspend fun getAllGames(): GamesResponse {
         var sportsGames:List<Game> = ArrayList()
         var actionGames:List<Game> = ArrayList()
