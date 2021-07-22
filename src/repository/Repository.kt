@@ -3,6 +3,7 @@ package repository
 import database.DatabaseManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import main.database.entity.DevelopersTable
 import main.model.Developer
 import main.model.Game
 import main.model.response.FavouriteGamesResponse
@@ -149,7 +150,12 @@ object Repository {
                 Developer(
                     id = it.id,
                     name = it.name,
-                    logo = it.logo
+                    logo = it.logo,
+                    about = it.about,
+                    founded = it.founded,
+                    twitter = it.twitter,
+                    insta = it.insta,
+                    fb = it.fb,
                 )
             }
         }

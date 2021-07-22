@@ -75,7 +75,12 @@ class DatabaseManager {
                 GamesTable.trending,
                 DevelopersTable.id,
                 DevelopersTable.name,
-                DevelopersTable.logo
+                DevelopersTable.logo,
+                DevelopersTable.about,
+                DevelopersTable.founded,
+                DevelopersTable.twitter,
+                DevelopersTable.insta,
+                DevelopersTable.fb
             )
             .where { FavouritesTable.userid eq userId }
             .forEach {
@@ -91,7 +96,12 @@ class DatabaseManager {
                         developer = Developer(
                             id = it[DevelopersTable.id]!!,
                             name = it[DevelopersTable.name]!!,
-                            logo = it[DevelopersTable.logo]!!
+                            logo = it[DevelopersTable.logo]!!,
+                            about = it[DevelopersTable.about]!!,
+                            founded = it[DevelopersTable.founded]!!,
+                            twitter = it[DevelopersTable.twitter]!!,
+                            insta = it[DevelopersTable.insta]!!,
+                            fb = it[DevelopersTable.fb]!!
                         ),
                         trending = it[GamesTable.trending]!!
                     )
