@@ -6,10 +6,7 @@ import kotlinx.coroutines.withContext
 import main.database.entity.DevelopersTable
 import main.model.Developer
 import main.model.Game
-import main.model.response.FavouriteGamesResponse
-import main.model.response.Games
-import main.model.response.GamesResponse
-import main.model.response.GenericResponse
+import main.model.response.*
 import main.util.Constants.ACTION
 import main.util.Constants.OPEN_WORLD
 import main.util.Constants.RACING
@@ -137,6 +134,25 @@ object Repository {
             }
         }
         return FavouriteGamesResponse(status = status, message = message, games = games)
+    }
+
+    suspend fun getGameDetail(gameId: Int?): GameDetailResponse {
+        var game: Game? = null
+        var status = "FAILURE"
+        var message = "Search param empty"
+        gameId?.let {
+            game = withContext(Dispatchers.Default){
+                databaseManager.getGameDetail(gameId)
+            }
+            if(game != null){
+                status = "SUCCESS"
+                message = "Game data found"
+            }
+            else{
+                message = "Game data not found"
+            }
+        }
+        return GameDetailResponse(status = status, message = message, gamesData = game)
     }
 
     suspend fun getAllGames(): GamesResponse {

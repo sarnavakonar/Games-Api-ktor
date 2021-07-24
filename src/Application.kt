@@ -116,6 +116,18 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(Repository.getGameByDev(devId.toInt()))
             }
 
+            get("/getGameDetail") {
+                val gameId = call.request.queryParameters["gameId"]
+                if (gameId.isNullOrBlank()){
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        GenericResponse(status = "FAILURE", message = "Invalid game Id")
+                    )
+                    return@get
+                }
+                call.respond(Repository.getGameDetail(gameId.toInt()))
+            }
+
 //            get("/session/increment") {
 //                val session = call.sessions.get<MySession>() ?: MySession()
 //                call.sessions.set(session.copy(count = session.count + 1))

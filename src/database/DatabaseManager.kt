@@ -26,8 +26,8 @@ class DatabaseManager {
     private val ktormDatabase: Database
 
     init {
-        //val jdbcUrl = "jdbc:mysql://localhost:3306/$databaseName?user=$username&password=$password&useSSL=false"
-        val jdbcUrl = "jdbc:mysql://us-cdbr-east-04.cleardb.com:3306/heroku_70ea6ff4c3e3313?user=b3f8bb58a60d20&password=e83a13d6&useSSL=false"
+        val jdbcUrl = "jdbc:mysql://localhost:3306/$databaseName?user=$username&password=$password&useSSL=false"
+        //val jdbcUrl = "jdbc:mysql://us-cdbr-east-04.cleardb.com:3306/heroku_70ea6ff4c3e3313?user=b3f8bb58a60d20&password=e83a13d6&useSSL=false"
         ktormDatabase = Database.connect(jdbcUrl)
     }
 
@@ -64,23 +64,23 @@ class DatabaseManager {
         ktormDatabase
             .from(FavouritesTable)
             .innerJoin(GamesTable, on = GamesTable.id eq FavouritesTable.gameid)
-            .innerJoin(DevelopersTable, on = DevelopersTable.id eq GamesTable.developer)
+            //.innerJoin(DevelopersTable, on = DevelopersTable.id eq GamesTable.developer)
             .select(GamesTable.id,
                 GamesTable.name,
                 GamesTable.category,
-                GamesTable.description,
+                //GamesTable.description,
                 GamesTable.image,
-                GamesTable.video,
-                GamesTable.rating,
-                GamesTable.trending,
-                DevelopersTable.id,
-                DevelopersTable.name,
-                DevelopersTable.logo,
-                DevelopersTable.about,
-                DevelopersTable.founded,
-                DevelopersTable.twitter,
-                DevelopersTable.insta,
-                DevelopersTable.fb
+                //GamesTable.video,
+                //GamesTable.rating,
+                GamesTable.trending
+//                DevelopersTable.id,
+//                DevelopersTable.name,
+//                DevelopersTable.logo,
+//                DevelopersTable.about,
+//                DevelopersTable.founded,
+//                DevelopersTable.twitter,
+//                DevelopersTable.insta,
+//                DevelopersTable.fb
             )
             .where { FavouritesTable.userid eq userId }
             .forEach {
@@ -89,20 +89,7 @@ class DatabaseManager {
                         id = it[GamesTable.id]!!,
                         name = it[GamesTable.name]!!,
                         categoty = it[GamesTable.category]!!,
-                        description = it[GamesTable.description]!!,
                         image = it[GamesTable.image]!!,
-                        video = it[GamesTable.video]!!,
-                        rating = it[GamesTable.rating]!!,
-                        developer = Developer(
-                            id = it[DevelopersTable.id]!!,
-                            name = it[DevelopersTable.name]!!,
-                            logo = it[DevelopersTable.logo]!!,
-                            about = it[DevelopersTable.about]!!,
-                            founded = it[DevelopersTable.founded]!!,
-                            twitter = it[DevelopersTable.twitter]!!,
-                            insta = it[DevelopersTable.insta]!!,
-                            fb = it[DevelopersTable.fb]!!
-                        ),
                         trending = it[GamesTable.trending]!!
                     )
                 )
@@ -177,6 +164,54 @@ class DatabaseManager {
             .sequenceOf(GamesTable)
             .filter { it.developer eq param }
             .toList()
+    }
+
+    fun getGameDetail(gameId: Int): Game? {
+        var game: Game? = null
+        ktormDatabase
+            .from(GamesTable)
+            .innerJoin(DevelopersTable, on = GamesTable.developer eq DevelopersTable.id)
+            .select(GamesTable.id,
+                GamesTable.name,
+                GamesTable.category,
+                GamesTable.description,
+                GamesTable.image,
+                GamesTable.video,
+                GamesTable.rating,
+                GamesTable.trending,
+                DevelopersTable.id,
+                DevelopersTable.name,
+                DevelopersTable.logo,
+                DevelopersTable.about,
+                DevelopersTable.founded,
+                DevelopersTable.twitter,
+                DevelopersTable.insta,
+                DevelopersTable.fb
+            )
+            .where { GamesTable.id eq gameId }
+            .forEach {
+                game = Game(
+                    id = it[GamesTable.id]!!,
+                    name = it[GamesTable.name]!!,
+                    description = it[GamesTable.description],
+                    categoty = it[GamesTable.category]!!,
+                    image = it[GamesTable.image]!!,
+                    video = it[GamesTable.video],
+                    developer = Developer(
+                        id = it[DevelopersTable.id]!!,
+                        name = it[DevelopersTable.name]!!,
+                        logo = it[DevelopersTable.logo]!!,
+                        about = it[DevelopersTable.about]!!,
+                        founded = it[DevelopersTable.founded]!!,
+                        twitter = it[DevelopersTable.twitter]!!,
+                        insta = it[DevelopersTable.insta]!!,
+                        fb = it[DevelopersTable.fb]!!
+                    ),
+                    rating = it[GamesTable.rating],
+                    trending = it[GamesTable.trending]!!
+                )
+            }
+        return game
     }
 
 }
