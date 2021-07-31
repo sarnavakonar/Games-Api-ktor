@@ -13,7 +13,6 @@ import org.ktorm.dsl.*
 import org.ktorm.entity.filter
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.toList
-import org.ktorm.schema.Column
 
 class DatabaseManager {
 
@@ -175,10 +174,15 @@ class DatabaseManager {
                 GamesTable.name,
                 GamesTable.category,
                 GamesTable.description,
+                GamesTable.released,
                 GamesTable.image,
                 GamesTable.video,
                 GamesTable.rating,
                 GamesTable.trending,
+                GamesTable.screenshot1,
+                GamesTable.screenshot2,
+                GamesTable.screenshot3,
+                GamesTable.screenshot4,
                 DevelopersTable.id,
                 DevelopersTable.name,
                 DevelopersTable.logo,
@@ -194,6 +198,7 @@ class DatabaseManager {
                     id = it[GamesTable.id]!!,
                     name = it[GamesTable.name]!!,
                     description = it[GamesTable.description],
+                    released = it[GamesTable.released],
                     categoty = it[GamesTable.category]!!,
                     image = it[GamesTable.image]!!,
                     video = it[GamesTable.video],
@@ -208,7 +213,13 @@ class DatabaseManager {
                         fb = it[DevelopersTable.fb]!!
                     ),
                     rating = it[GamesTable.rating],
-                    trending = it[GamesTable.trending]!!
+                    trending = it[GamesTable.trending]!!,
+                    screenshots = listOf(
+                        it[GamesTable.screenshot1],
+                        it[GamesTable.screenshot2],
+                        it[GamesTable.screenshot3],
+                        it[GamesTable.screenshot4]
+                    )
                 )
             }
         return game

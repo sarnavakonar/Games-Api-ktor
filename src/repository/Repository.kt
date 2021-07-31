@@ -3,7 +3,6 @@ package repository
 import database.DatabaseManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import main.database.entity.DevelopersTable
 import main.model.Developer
 import main.model.Game
 import main.model.response.*
