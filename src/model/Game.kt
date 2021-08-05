@@ -11,5 +11,6 @@ data class Game(
     var developer: Developer? = null,
     var rating: Double? = null,
     var trending: Int,
-    var screenshots: List<String?>? = null
+    var screenshots: List<String?>? = null,
+    var isFavourite: Boolean = false
 )

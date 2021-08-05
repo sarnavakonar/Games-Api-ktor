@@ -144,6 +144,10 @@ object Repository {
                 databaseManager.getGameDetail(gameId)
             }
             if(game != null){
+                val userId = databaseManager.getUserIdFromUsername(USERNAME)
+                userId?.let {
+                    game!!.isFavourite = databaseManager.checkIfAlreadyFavourite(userId, gameId) > 0
+                }
                 status = "SUCCESS"
                 message = "Game data found"
             }
