@@ -53,21 +53,21 @@ fun Application.module(testing: Boolean = false) {
             val requestBody = call.receive<CreateUserRequest>()
             val username = requestBody.username
             val password = requestBody.password
-            if(username.isNullOrEmpty() || username.length != 10){
+            if(username.isNullOrEmpty()){
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    GenericResponse(status = "FAILURE", message = "Username should be of 10 characters")
+                    GenericResponse(status = "FAILURE", message = "Username should not be empty")
                 )
                 return@post
             }
-            if(password.isNullOrEmpty() || password.length < 5){
+            if(password.isNullOrEmpty()){
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    GenericResponse(status = "FAILURE", message = "Password should be of minimum 5 characters")
+                    GenericResponse(status = "FAILURE", message = "Password should not be empty")
                 )
                 return@post
             }
-            call.respond(Repository.createUserIfNotExist(username, password))
+            call.respond(Repository.createOrLoginUser(username, password))
         }
 
         authenticate("auth-basic") {

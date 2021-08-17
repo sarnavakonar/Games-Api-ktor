@@ -21,10 +21,10 @@ object Repository {
         return databaseManager.checkIfUserExists(username, password) > 0
     }
 
-    fun createUserIfNotExist(username: String, password: String): Any {
+    fun createOrLoginUser(username: String, password: String): Any {
         var status = "FAILURE"
-        var message = "User with username $username already exists"
-        if(databaseManager.checkIfUserNameExists(username) == 0){
+        var message = "User $username logged in"
+        if(databaseManager.checkIfUserExists(username, password) == 0){
             if(databaseManager.addNewUser(username, password) == 1){
                 status = "SUCCESS"
                 message = "User created"
@@ -32,6 +32,9 @@ object Repository {
             else{
                 message = "Error in creating new user"
             }
+        }
+        else {
+            status = "SUCCESS"
         }
         return GenericResponse(status = status, message = message)
     }
