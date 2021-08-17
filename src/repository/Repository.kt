@@ -25,12 +25,17 @@ object Repository {
         var status = "FAILURE"
         var message = "User $username logged in"
         if(databaseManager.checkIfUserExists(username, password) == 0){
-            if(databaseManager.addNewUser(username, password) == 1){
-                status = "SUCCESS"
-                message = "User created"
+            if(databaseManager.checkIfUserNameExists(username) == 1){
+                message = "User with username $username already exists"
             }
             else{
-                message = "Error in creating new user"
+                if(databaseManager.addNewUser(username, password) == 1){
+                    status = "SUCCESS"
+                    message = "User created"
+                }
+                else{
+                    message = "Error in creating new user"
+                }
             }
         }
         else {
