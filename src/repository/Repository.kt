@@ -167,10 +167,7 @@ object Repository {
     }
 
     suspend fun getAllGames(): GamesResponse {
-        var sportsGames:List<Game> = ArrayList()
-        var actionGames:List<Game> = ArrayList()
-        var racingGames:List<Game> = ArrayList()
-        var openWorldGames:List<Game> = ArrayList()
+        val gameCategories = mutableListOf<Category>()
 
         val developers = withContext(Dispatchers.Default){
             databaseManager.getDevelopers().map {
@@ -186,96 +183,49 @@ object Repository {
                 )
             }
         }
+
         val gamesEntity = withContext(Dispatchers.Default){ databaseManager.getGames() }
 
-        gamesCategoryList.forEach { category ->
-            when (category) {
-                SPORTS -> {
-                    sportsGames = withContext(Dispatchers.Default) {
-                        gamesEntity
-                            .filter { it.categoty == category }
-                            .map {
-                                Game(
-                                    id = it.id,
-                                    name = it.name,
-                                    categoty = it.categoty,
-                                    image = it.image,
-                                    trending = it.trending
-                                )
-                            }
+        gameCategories.add(
+            Category(
+                name = "Trending",
+                games = gamesEntity
+                    .filter { it.trending == 1 }
+                    .map {
+                        Game(
+                            id = it.id,
+                            name = it.name,
+                            categoty = it.categoty,
+                            image = it.image,
+                            trending = it.trending
+                        )
                     }
-                }
-                ACTION -> {
-                    actionGames = withContext(Dispatchers.Default) {
-                        gamesEntity
-                            .filter { it.categoty == category }
-                            .map {
-                                Game(
-                                    id = it.id,
-                                    name = it.name,
-                                    categoty = it.categoty,
-                                    image = it.image,
-                                    trending = it.trending
-                                )
-                            }
-                    }
-                }
-                RACING -> {
-                    racingGames = withContext(Dispatchers.Default) {
-                        gamesEntity
-                            .filter { it.categoty == category }
-                            .map {
-                                Game(
-                                    id = it.id,
-                                    name = it.name,
-                                    categoty = it.categoty,
-                                    image = it.image,
-                                    trending = it.trending
-                                )
-                            }
-                    }
-                }
-                OPEN_WORLD -> {
-                    openWorldGames = withContext(Dispatchers.Default) {
-                        gamesEntity
-                            .filter { it.categoty == category }
-                            .map {
-                                Game(
-                                    id = it.id,
-                                    name = it.name,
-                                    categoty = it.categoty,
-                                    image = it.image,
-                                    trending = it.trending
-                                )
-                            }
-                    }
-                }
-            }
-        }
-
-        val trendingGames = withContext(Dispatchers.Default){
-            gamesEntity
-                .filter { it.trending == 1 }
-                .map {
-                    Game(
-                        id = it.id,
-                        name = it.name,
-                        categoty = it.categoty,
-                        image = it.image,
-                        trending = it.trending
-                    )
-                }
-        }
-
-        val games = Games(
-            trendingGames = trendingGames,
-            sportsGames = sportsGames,
-            openWorldGames = openWorldGames,
-            actionGames = actionGames,
-            racingGames = racingGames
+            )
         )
+
+        val gamesMap = gamesEntity.groupBy {
+            it.categoty
+        }
+
+        gamesMap.entries.forEach {
+            gameCategories.add(
+                Category(
+                    name = it.key,
+                    games = it.value.map {
+                        Game(
+                            id = it.id,
+                            name = it.name,
+                            categoty = it.categoty,
+                            image = it.image,
+                            trending = it.trending
+                        )
+                    }
+                )
+            )
+        }
+
         return GamesResponse(
-            games = games,
+            categories = gameCategories,
             developers = developers
         )
     }
